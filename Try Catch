@@ -1,0 +1,104 @@
+{
+    "nodeId": "Catch-copy",
+    "serializedValue": {
+        "type": "Scope",
+        "actions": {
+            "Filter": {
+                "type": "Query",
+                "inputs": {
+                    "from": "@result('Try')",
+                    "where": "@or(equals(item()?['Status'], 'Failed'),equals(item()?['Status'], 'TimedOut'))"
+                }
+            },
+            "Create_HTML_table": {
+                "type": "Table",
+                "inputs": {
+                    "from": "@body('Filter')",
+                    "format": "HTML",
+                    "columns": [
+                        {
+                            "header": "Action",
+                            "value": "@item()?['name']"
+                        },
+                        {
+                            "header": "Status",
+                            "value": "@item()?['status']"
+                        },
+                        {
+                            "header": "Error Message",
+                            "value": "@item()?['error']?['message']"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Filter": [
+                        "Succeeded"
+                    ]
+                },
+                "metadata": {
+                    "operationMetadataId": "93f662fa-4081-42dc-9d59-0334c318d49f"
+                }
+            },
+            "CSS_Styling": {
+                "type": "Compose",
+                "inputs": "<style>\n\ttable {\n          border-collapse: collapse;\n\t}\n        table td, table th {\n          border: 1px solid #AAAAAA;\n          padding: 3px 10px;\n        }\n       table tr:nth-child(even) {\n          background: #D9E1F2;\n\t}\n\ttable thead {\n\t  background: #4472C4;\n\t}\n\ttable thead th {\n\t  font-size: 15px;\n          font-weight: bold;\n          color: #FFFFFF;\n          text-align: left;\n\t}\n\ttable tfoot {\n \t font-weight: bold;\n\t}\n</style>\n@{body('Create_HTML_table')}",
+                "runAfter": {
+                    "Create_HTML_table": [
+                        "Succeeded"
+                    ]
+                },
+                "metadata": {
+                    "operationMetadataId": "a482cbba-2cc8-449d-b3ca-72134fc6f313"
+                }
+            },
+            "Send_an_email": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                    "parameters": {
+                        "emailMessage/To": "GavinSquires@BerryGlobal.com",
+                        "emailMessage/Subject": "Automate Flow Error",
+                        "emailMessage/Body": "<p class=\"editor-paragraph\">@{outputs('CSS_Styling')}</p>",
+                        "emailMessage/Importance": "Normal"
+                    },
+                    "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                        "connection": "shared_office365",
+                        "operationId": "SendEmailV2"
+                    }
+                },
+                "runAfter": {
+                    "CSS_Styling": [
+                        "Succeeded"
+                    ]
+                },
+                "metadata": {
+                    "operationMetadataId": "864c02f6-567f-4aea-876b-13fc07fe24ea"
+                }
+            },
+            "Terminate": {
+                "type": "Terminate",
+                "inputs": {
+                    "runStatus": "Failed",
+                    "runError": {
+                        "message": "@item()?['error']?['message']"
+                    }
+                },
+                "runAfter": {
+                    "Send_an_email": [
+                        "Succeeded"
+                    ]
+                }
+            }
+        },
+        "runAfter": {
+            "Try": [
+                "TimedOut",
+                "Failed"
+            ]
+        }
+    },
+    "allConnectionData": {},
+    "staticResults": {},
+    "isScopeNode": true,
+    "mslaNode": true
+}
