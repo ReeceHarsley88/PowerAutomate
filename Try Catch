@@ -1,3 +1,5 @@
+//This is a basic Catch Scope for a catch release process. Simply copy the code after these comments into a power automate flow. you will also need to create a scope action above called Try filled with the items of your flow you want to monitor.
+
 {
     "nodeId": "Catch-copy",
     "serializedValue": {
@@ -55,7 +57,7 @@
                 "type": "OpenApiConnection",
                 "inputs": {
                     "parameters": {
-                        "emailMessage/To": "GavinSquires@BerryGlobal.com",
+                        "emailMessage/To": "useremail@email.com",
                         "emailMessage/Subject": "Automate Flow Error",
                         "emailMessage/Body": "<p class=\"editor-paragraph\">@{outputs('CSS_Styling')}</p>",
                         "emailMessage/Importance": "Normal"
